@@ -8,6 +8,8 @@ var os = require('os');
 var crypto = require('crypto');
 var WebSocket = require('ws');
 
+dns.setServers(['8.8.8.8']); // todo: remove
+
 function debug(e) {
   if(e.stack) {
     util.debug(e + '\n' + e.stack);
@@ -848,8 +850,12 @@ function resolve(uri, action) {
     });
   }
 
+
+  var isLyncAddress = uri.params.lync;
+
   if(uri.port) {
-    var protocols = uri.params.transport ? [uri.params.transport] : ['UDP', 'TCP', 'TLS'];
+    //var protocols = uri.params.transport ? [uri.params.transport] : ['UDP', 'TCP', 'TLS'];
+    var protocols = uri.params.transport ? [uri.params.transport] : ( isLyncAddress ? ['TLS'] : [/*'UDP'*/, 'TLS'/*, 'TLS'*/]);
     
     resolve46(uri.host, function(err, address) {
       address = (address || []).map(function(x) { return protocols.map(function(p) { return { protocol: p, address: x, port: uri.port || defaultPort(p)};});})
@@ -858,13 +864,19 @@ function resolve(uri, action) {
     });
   }
   else {
-    var protocols = uri.params.transport ? [uri.params.transport] : ['tcp', 'udp', 'tls'];
+    //var protocols = uri.params.transport ? [uri.params.transport] : ['tcp', 'udp', 'tls'];
+    var protocols = uri.params.transport ? [uri.params.transport] : ( isLyncAddress ? ['tls'] : ['tcp' /*,'udp',*//* 'tls'*/]);
   
     var n = protocols.length;
     var addresses = [];
 
     protocols.forEach(function(proto) {
-      resolveSrv('_sip._'+proto+'.'+uri.host, function(e, r) {
+      
+      var prefix = isLyncAddress ? "_sipfederationtls._tcp" : ("_sip._" + proto);
+      
+      //resolveSrv('_sip._'+proto+'.'+uri.host, function(e, r) {
+      resolveSrv(prefix+'.'+uri.host, function(e, r) {
+      
         --n;
         
         if(Array.isArray(r)) {
@@ -1318,6 +1330,8 @@ exports.create = function(options, callback) {
       }
       else {
         var hop = parseUri(m.uri);
+        if (m.headers.route) m.headers.route = JSON.parse(JSON.stringify(m.headers.route)); // copy route
+        
 
         if(typeof m.headers.route === 'string')
           m.headers.route = parsers.route({s: m.headers.route, i:0});
