@@ -8,7 +8,7 @@ var os = require('os');
 var crypto = require('crypto');
 var WebSocket = require('ws');
 
-dns.setServers(['8.8.8.8']); // todo: remove
+//dns.setServers(['8.8.8.8']); // todo: remove
 
 function debug(e) {
   if(e.stack) {
@@ -855,7 +855,7 @@ function resolve(uri, action) {
 
   if(uri.port) {
     //var protocols = uri.params.transport ? [uri.params.transport] : ['UDP', 'TCP', 'TLS'];
-    var protocols = uri.params.transport ? [uri.params.transport] : ( isLyncAddress ? ['TLS'] : [/*'UDP'*/, 'TLS'/*, 'TLS'*/]);
+    var protocols = uri.params.transport ? [uri.params.transport] : ( isLyncAddress ? ['TLS'] : [/*'UDP'*/'TCP'/*, 'TLS'*/]);
     
     resolve46(uri.host, function(err, address) {
       address = (address || []).map(function(x) { return protocols.map(function(p) { return { protocol: p, address: x, port: uri.port || defaultPort(p)};});})
