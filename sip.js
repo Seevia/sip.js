@@ -964,7 +964,7 @@ function createInviteServerTransaction(transport, cleanup) {
         g = setTimeout(retry, t*2, t*2);
         transport(rs)
       }, 500, 500);
-      h = setTimeout(sm.enter.bind(sm, terminated), 32000);
+      h = setTimeout(sm.enter.bind(sm, terminated), 59000);
     },
     leave: function() {
       clearTimeout(g);
@@ -986,7 +986,7 @@ function createInviteServerTransaction(transport, cleanup) {
 
   var l;
   var accepted = {
-    enter: function() { l = setTimeout(sm.enter.bind(sm, terminated), 32000);},
+    enter: function() { l = setTimeout(sm.enter.bind(sm, terminated), 59000);},
     leave: function() { clearTimeout(l); },
     send: function(m) { 
       rs = m;
@@ -1017,7 +1017,7 @@ function createServerTransaction(transport, cleanup) {
   var j;
   var completed = {
     message: function() { transport(rs); },
-    enter: function() { j = setTimeout(function() { sm.enter(terminated); }, 32000); },
+    enter: function() { j = setTimeout(function() { sm.enter(terminated); }, 59000); },
     leave: function() { clearTimeout(j); }
   };
 
@@ -1046,7 +1046,7 @@ function createInviteClientTransaction(rq, transport, tu, cleanup, options) {
       b = setTimeout(function() {
         tu(makeResponse(rq, 408));
         sm.enter(terminated);
-      }, 32000);
+      }, 59000);
     },
     leave: function() {
       clearTimeout(a);
@@ -1092,7 +1092,7 @@ function createInviteClientTransaction(rq, transport, tu, cleanup, options) {
     enter: function(rs) {
       ack.headers.to=rs.headers.to;
       transport(ack);
-      d = setTimeout(sm.enter.bind(sm, terminated), 32000);
+      d = setTimeout(sm.enter.bind(sm, terminated), 59000);
     },
     leave: function() { clearTimeout(d); },
     message: function(message, remote) {
@@ -1103,7 +1103,7 @@ function createInviteClientTransaction(rq, transport, tu, cleanup, options) {
   var timer_m;
   var accepted = {
     enter: function() {
-      timer_m = setTimeout(function() { sm.enter(terminated); }, 32000);
+      timer_m = setTimeout(function() { sm.enter(terminated); }, 59000);
     },
     leave: function() { clearTimeout(timer_m); },
     message: function(m) {
@@ -1130,7 +1130,7 @@ function createClientTransaction(rq, transport, tu, cleanup) {
       transport(rq);
       if(!transport.reliable)
         e = setTimeout(function() { sm.signal('timerE', 500); }, 500);
-      f = setTimeout(function() { sm.signal('timerF'); }, 32000);
+      f = setTimeout(function() { sm.signal('timerF'); }, 59000);
     },
     leave: function() {
       clearTimeout(e);
