@@ -544,7 +544,7 @@ function makeStreamTransport(protocol, connect, createServer, callback) {
       stream.end();
     });
 
-    stream.on('timeout',  function() { if(refs === 0) stream.end(); });
+    stream.on('timeout',  function() { if(refs === 0) stream.destroy(); });
     stream.setTimeout(120000);   
     stream.setMaxListeners(10000);
  
