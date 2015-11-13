@@ -830,7 +830,7 @@ var resolveSrv = makeWellBehavingResolver(dns.resolveSrv);
 var resolve4 = makeWellBehavingResolver(dns.resolve4);
 var resolve6 = makeWellBehavingResolver(dns.resolve6);
 
-function resolve(uri, action) {
+function resolve(uri, action, sendContext) {
   if(uri.params.transport === 'ws')
     return action([{protocol: uri.schema === 'sips' ? 'WSS' : 'WS', host: uri.host, port: uri.port || (uri.schema === 'sips' ? 433 : 80)}]);
 
@@ -851,7 +851,7 @@ function resolve(uri, action) {
   }
 
 
-  var isLyncAddress = uri.params.lync;
+  var isLyncAddress = uri.params.lync || ((sendContext || {}).type == 'mssip');
 
   if(uri.port) {
     //var protocols = uri.params.transport ? [uri.params.transport] : ['UDP', 'TCP', 'TLS'];
@@ -1323,7 +1323,7 @@ exports.create = function(options, callback) {
   }       
   
   return {
-    send: function(m, callback) {
+    send: function(m, sendContext, callback) {
       if(m.method === undefined) {
         var t = transaction.getServer(m);
         t && t.send && t.send(m);
@@ -1354,7 +1354,7 @@ exports.create = function(options, callback) {
             callback(flow ? [flow] : []);
           }
           else
-            resolve(hop, callback);
+            resolve(hop, callback, sendContext);
         })(function(addresses) {
           if(m.method === 'ACK') {
             if(!Array.isArray(m.headers.via))
@@ -1405,7 +1405,8 @@ exports.create = function(options, callback) {
 exports.start = function(options, callback) {
   var r = exports.create(options, callback);
 
-  exports.send = r.send;
+  exports.send = function(m, callback) { return r.send(m, {}, callback); };
+  exports.send2 = r.send;
   exports.stop = r.destroy;
   exports.encodeFlowUri = r.encodeFlowUri;
   exports.decodeFlowUri = r.decodeFlowUri;
