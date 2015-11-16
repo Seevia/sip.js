@@ -562,14 +562,14 @@ function makeStreamTransport(protocol, connect, createServer, callback) {
 
             //console.log('>> ' + stream.remoteAddress + ' (' +  stream.localAddress + ' :' + stream.localPort + ')');
             //console.log(stringify(m));
-            stream.cork();
+            //stream.cork();
             var ret = stream.write(stringify(m), 'ascii', function() {
 
               //console.log('data written to stream');
               //stream.write('\r\n');
             });
             //console.log('ret: ' + ret);
-            stream.uncork();
+            //stream.uncork();
             setTimeout(function() { stream.write('\r\n\r\n'); },1);
             //setTimeout(function() { stream.write('\r\n'); },100);
             //setTimeout(function() { stream.write('\r\n'); },500);
