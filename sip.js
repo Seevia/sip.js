@@ -360,7 +360,8 @@ function stringify(m) {
     s = m.method + ' ' + stringifyUri(m.uri) + ' SIP/' + stringifyVersion(m.version) + '\r\n';
   }
 
-  m.headers['content-length'] = (m.content || '').length;
+  //m.headers['content-length'] = (m.content || '').length;
+  m.headers['content-length'] = Buffer.byteLength((m.content || ''),'utf8');
 
   for(var n in m.headers) {
     if(typeof m.headers[n] !== "undefined") {
@@ -459,7 +460,8 @@ function makeStreamParser(onMessage) {
   function content(data) {
     r += data;
 
-    if(r.length >= m.headers['content-length']) {
+    //if(r.length >= m.headers['content-length']) {
+    if(Buffer.byteLength(r, 'utf8') >= m.headers['content-length']) {
       m.content = r.substring(0, m.headers['content-length']);
       
       onMessage(m);
@@ -478,7 +480,8 @@ function makeStreamParser(onMessage) {
 exports.makeStreamParser = makeStreamParser;
 
 function parseMessage(s) {
-  var r = s.toString('ascii').match(/^\s*([\S\s]*?)\r\n\r\n([\S\s]*)$/);
+  //var r = s.toString('ascii').match(/^\s*([\S\s]*?)\r\n\r\n([\S\s]*)$/);
+  var r = s.toString('utf8').split('\r\n\r\n');
   if(r) {
     var m = parse(r[1]);
 
@@ -522,7 +525,6 @@ function makeStreamTransport(protocol, connect, createServer, callback) {
       flows[flowid] = remotes[remoteid];
     }
 
-    stream.setEncoding('ascii');
     stream.on('data', makeStreamParser(function(m) {
       if(checkMessage(m)) {
         if(m.method) m.headers.via[0].params.received = remote.address;
@@ -547,6 +549,7 @@ function makeStreamTransport(protocol, connect, createServer, callback) {
     stream.on('timeout',  function() { if(refs === 0) stream.destroy(); });
     stream.setTimeout(120000);   
     stream.setMaxListeners(10000);
+    stream.setEncoding('utf8');
  
     remotes[remoteid] = function(onError) {
       ++refs;
@@ -563,7 +566,7 @@ function makeStreamTransport(protocol, connect, createServer, callback) {
             //console.log('>> ' + stream.remoteAddress + ' (' +  stream.localAddress + ' :' + stream.localPort + ')');
             //console.log(stringify(m));
             //stream.cork();
-            var ret = stream.write(stringify(m), 'ascii', function() {
+            var ret = stream.write(stringify(m), function() {
 
               //console.log('data written to stream');
               //stream.write('\r\n');
