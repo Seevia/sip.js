@@ -481,7 +481,8 @@ exports.makeStreamParser = makeStreamParser;
 
 function parseMessage(s) {
   //var r = s.toString('ascii').match(/^\s*([\S\s]*?)\r\n\r\n([\S\s]*)$/);
-  var r = s.toString('utf8').split('\r\n\r\n');
+  //var r = s.toString('utf8').split('\r\n\r\n');
+  var r = s.toString('utf8').match(/^\s*([\S\s]*?)\r\n\r\n([\S\s]*)$/);
   if(r) {
     var m = parse(r[1]);
 
