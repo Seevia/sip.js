@@ -1303,7 +1303,8 @@ exports.create = function(options, callback) {
         if(m.method && m.method !== 'ACK') {
           var cn = transport.get(remote);
           if (!cn) {
-            errorLog({errorMsg: 'unable to create transport',m: m, remote: remote, options: options});
+            cn = transport.open(remote);
+            errorLog({errorMsg: 'unable to get transport. Open new...',m: m, remote: remote, options: options});
           }
           var t = transaction.createServerTransaction(m, cn);
           try {
