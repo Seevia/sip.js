@@ -1301,7 +1301,11 @@ exports.create = function(options, callback) {
 
       if(!t) {
         if(m.method && m.method !== 'ACK') {
-          var t = transaction.createServerTransaction(m, transport.get(remote));
+          var cn = transport.get(remote);
+          if (!cn) {
+            errorLog({remote: remote, options: options});
+          }
+          var t = transaction.createServerTransaction(m, cn);
           try {
             callback(m,remote);
           } catch(e) {
